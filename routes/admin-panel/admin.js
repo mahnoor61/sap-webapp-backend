@@ -16,12 +16,11 @@ const {getProductionOrderNos, getOperatorPortalData, getDocNumData} = require('.
 const {createRoles, allRoles} = require('../../controller/admin-panel/role');
 const {createMachine, allMachine} = require('../../controller/admin-panel/machine');
 const {createRouteStage, allRoutes} = require('../../controller/admin-panel/routeStage');
-const {create} = require("../../controller/admin-panel/user");
 const {createJob, allJobs, updateJob, allSingleJobs, destroyJob} = require('../../controller/admin-panel/job');
 // // const {createJob} =require('../../controller/admin-panel/job');
 
 //machine route
-router.post("/create/role", middleware, createRoles);
+router.post("/create/role", createRoles);
 router.post("/create/machine", middleware, createMachine);
 
 router.get("/get/machines", middleware, allMachine);
@@ -54,5 +53,6 @@ router.get('/odbc/production/order/:id',middleware,  allSingleJobs);
 router.delete('/destroy/job/:id', middleware, destroyJob);
 // get operator portal data of sap route:
 router.get('/odbc/operator/data',middleware,  getOperatorPortalData);
-router.get('/odbc/operator/doc-data/:docNum',middleware,  getDocNumData);
+
+router.get('/odbc/operator/doc-data/:id',middleware,  getDocNumData);
 module.exports = router;

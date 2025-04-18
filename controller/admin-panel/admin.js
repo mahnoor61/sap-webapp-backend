@@ -9,11 +9,12 @@ const {error_response, success_response} = require('../../utils/response');
 exports.register = async (req, res) => {
     try {
         const {name, email, password, userName, role, machine} = req.body;
-        const userData = await User.findOne({email});
+        const userData = await User.findOne({userName});
 
         if (userData) {
             return error_response(res, 400, "User already exit!");
         }
+
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await User.create(
             {

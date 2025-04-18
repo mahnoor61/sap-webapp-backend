@@ -1,13 +1,14 @@
 const Job = require('../../models/jobAssigning');
 const {success_response, error_response} = require("../../utils/response");
 const User = require("../../models/user");
+const ProdDetail = require('../../models/productionOrder');
 
 
 exports.createJob = async (req, res) => {
     try {
-        const {productionOrderNo, machine, routeStage, user} = req.body;
+        const {productionOrderNo, assignments} = req.body;
 
-        if (!(machine && productionOrderNo && routeStage && user)) {
+        if (!(productionOrderNo && assignments)) {
             return error_response(res, 400, "All inputs are required");
         }
 
@@ -19,32 +20,30 @@ exports.createJob = async (req, res) => {
             return error_response(res, 400, "This job already exists for this user.");
         }
 
+        const prodDetail = await ProdDetail.findOne({docNum: productionOrderNo});
         // // Create new job
-        const createJob = await Job.create({
-            productionOrderNo,
-            machine: machine,
-            route: routeStage,
-            user
-        });
+        const data = assignments.map((assign , index)  => {
+            return Job.create({
+                productionOrderNo,
+                productionOrderDataId: prodDetail._id,
+                user:assign.user,
+                machine:assign.machine,
+                route:assign.route,
+                routeNo:index+1
+            });
+        })
+        const createdJobs = await Promise.all(data);
 
         // Fetch job again with populated data
-        const populatedJob = await Job.findById(createJob._id)
+        const populatedJobs = await Job.find({
+            _id: { $in: createdJobs.map(job => job._id) }
+        })
             .populate('machine', 'code')
             .populate('route', 'code')
             .populate('user', 'userName');
 
-        // console.log("populatedJob", populatedJob)
 
-        // // Format response
-        // let response = {
-        //     _id: populatedJob._id,
-        //     productionOrderNo: populatedJob.productionOrderNo,
-        //     machine: populatedJob.machine ? populatedJob.machine.code : null,
-        //     route: populatedJob.route ? populatedJob.route.code : null,
-        //     user: populatedJob.user ? populatedJob.user.userName : null
-        // }
-        //
-        return success_response(res, 200, "Job Assigned Successfully", populatedJob);
+        return success_response(res, 200, "Job Assigned Successfully", populatedJobs);
 
     } catch (error) {
         console.log(error);
@@ -56,8 +55,14 @@ exports.createJob = async (req, res) => {
 exports.allJobs = async (req, res) => {
     try {
         const all = await Job.find().sort({createdAt: -1}).populate('machine', 'code')
-            .populate('route')
-            .populate('user', 'userName').populate('user', 'userName');
+            .populate('route', 'code')
+            .populate('user', 'userName');
+
+        //
+        // const allDocs = await ProdDetail.find({}, { docNum: 1, _id: 0 });
+        // const existingDocNums = allDocs.map(doc => doc.docNum);
+        // const docNumCondition = existingDocNums.length > 0 ? `AND T0.[DocNum] NOT IN (${existingDocNums.join(', ')})` : '';
+        // console.log("docNumCondition", docNumCondition)
 
         if (all.length > 0) {
             return success_response(res, 200, "Jobs fetch successfully", all);
@@ -70,46 +75,43 @@ exports.allJobs = async (req, res) => {
 };
 exports.updateJob = async (req, res) => {
     try {
-        const {productionOrderNo, machine, routeStage, user} = req.body;
+        const {productionOrderNo, user, route, machine} = req.body;
         const {id} = req.params;
 
-
-        // Check if job already exists for the same user and production order number
-        const existingJob = await Job.findOne({
-            _id: id
-        });
+        const existingJob = await Job.findOne({_id: id});
 
         if (!existingJob) {
-            return error_response(res, 400, "This job not exist.");
+            return error_response(res, 400, "This job does not exist.");
         }
 
-        if (machine) {
-            existingJob.machine = machine;
-        }
         if (productionOrderNo) {
             existingJob.productionOrderNo = productionOrderNo;
-        }
-        if (routeStage) {
-            existingJob.route = routeStage;
         }
         if (user) {
             existingJob.user = user;
         }
+        if (route) {
+            existingJob.route = route;
+        }
+        if (machine) {
+            existingJob.machine = machine;
+        }
         await existingJob.save();
-        return success_response(res, 200, "Job updated Successfully", existingJob);
-
+        return success_response(res, 200, "Job updated successfully", existingJob);
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return error_response(res, 500, error.message);
     }
 };
+
+
 exports.allSingleJobs = async (req, res) => {
     try {
         const {id} = req.params;
         const job = await Job.findOne({_id: id})
             .populate('machine', 'code')
-            .populate('route')
-            .populate('user', 'userName').populate('user', 'userName');
+            .populate('route', 'code')
+            .populate('user', 'userName');
 
         if (!job) {
             return error_response(res, 400, "This job not exist.");
