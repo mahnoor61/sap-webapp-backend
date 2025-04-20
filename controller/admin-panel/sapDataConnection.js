@@ -33,6 +33,7 @@ exports.getOperatorPortalData = async (req, res) => {
     try {
 
         const productionOrder = await Job.find().populate('productionOrderDataId').sort({createdAt: -1});
+        // console.log("productionOrder", productionOrder)
 
         //       const SAP_ODBC_CONNECTION_STRING = process.env.SAP_CONNECTION_STRING;
         //       const connection = await odbc.connect(SAP_ODBC_CONNECTION_STRING);
