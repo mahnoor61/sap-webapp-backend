@@ -324,6 +324,52 @@ exports.updateRecievedByOperator = async (req, res) => {
         return error_response(res, 500, error.message);
     }
 };
+// exports.addIssueForMachine = async (req, res) => {
+//     try {
+//         let {issueForMachine, id} = req.body;
+//
+//         if (!(issueForMachine && id)) {
+//             return error_response(res, 400, 'All inputs are required!');
+//         }
+//
+//         issueForMachine = Math.abs(issueForMachine);
+//
+//         const currentJob = await Job.findOne({
+//             _id: id
+//         })
+//             .populate('productionOrderDataId')
+//             .populate('user', 'userName')
+//             .populate('route', 'code')
+//             .populate('machine', 'code');
+//
+//
+//         if (!currentJob) {
+//             return error_response(res, 404, 'Job not found');
+//         }
+//
+//         const issue = currentJob.issueForMachine;
+//         const completedQty = currentJob.completedQuantity;
+//         const wastedQty = currentJob.wastedQuantity;
+//
+//         if (issue > completedQty + wastedQty) {
+//             return error_response(res, 400, 'The previous pallet is not yet complete.Please complete or discard the remaining quantity first!');
+//         }
+//
+//         currentJob.currentPallateNo += 1;
+//         currentJob.issueForMachine = issueForMachine;
+//         currentJob.completedQuantity = 0;
+//         currentJob.wastedQuantity = 0;
+//         currentJob.totalIssueForMachie += issueForMachine;
+//
+//         await currentJob.save();
+//
+//         return success_response(res, 200, 'Issue for machine added successfully', currentJob);
+//     } catch (error) {
+//         console.error(error);
+//         return error_response(res, 500, error.message);
+//     }
+// };
+
 exports.addIssueForMachine = async (req, res) => {
     try {
         let {issueForMachine, id} = req.body;
@@ -351,16 +397,20 @@ exports.addIssueForMachine = async (req, res) => {
         const completedQty = currentJob.completedQuantity;
         const wastedQty = currentJob.wastedQuantity;
 
+        console.log("issue", issue)
+        console.log("completedQty", completedQty)
+        console.log("wastedQty", wastedQty)
+
         if (issue > completedQty + wastedQty) {
             return error_response(res, 400, 'The previous pallet is not yet complete.Please complete or discard the remaining quantity first!');
         }
-
-        currentJob.currentPallateNo += 1;
+        //
+        // currentJob.currentPallateNo += 1;
         currentJob.issueForMachine = issueForMachine;
-        currentJob.completedQuantity = 0;
-        currentJob.wastedQuantity = 0;
+        // currentJob.completedQuantity = 0;
+        // currentJob.wastedQuantity = 0;
         currentJob.totalIssueForMachie += issueForMachine;
-
+        //
         await currentJob.save();
 
         return success_response(res, 200, 'Issue for machine added successfully', currentJob);
@@ -369,6 +419,52 @@ exports.addIssueForMachine = async (req, res) => {
         return error_response(res, 500, error.message);
     }
 };
+exports.updateIssueForMachine = async (req, res) => {
+    try {
+        let {id} = req.body;
+
+        if (!id) {
+            return error_response(res, 400, 'Id is  required!');
+        }
+
+        const currentJob = await Job.findOne({
+            _id: id
+        })
+            .populate('productionOrderDataId')
+            .populate('user', 'userName')
+            .populate('route', 'code')
+            .populate('machine', 'code');
+
+
+        if (!currentJob) {
+            return error_response(res, 404, 'Job not found');
+        }
+
+        const issue = currentJob.issueForMachine;
+        const completedQty = currentJob.completedQuantity;
+        const wastedQty = currentJob.wastedQuantity;
+
+        if (issue > completedQty + wastedQty) {
+            return error_response(res, 400, 'The previous pallet is not yet complete.Please complete or discard the remaining quantity first!');
+        }
+
+        currentJob.currentPallateNo += 1;
+        // currentJob.issueForMachine = issueForMachine;
+        currentJob.completedQuantity = 0;
+        currentJob.issueForMachine = 0;
+        currentJob.wastedQuantity = 0;
+        // currentJob.totalIssueForMachie += issueForMachine;
+        //
+        await currentJob.save();
+
+        return success_response(res, 200, 'Pallet for issue for machine is updated successfully', currentJob);
+    } catch (error) {
+        console.error(error);
+        return error_response(res, 500, error.message);
+    }
+};
+
+
 exports.addCompletedQuantity = async (req, res) => {
     try {
 

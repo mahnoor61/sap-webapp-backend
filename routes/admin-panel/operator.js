@@ -7,8 +7,8 @@ const {
     updatemakeTime,
     updateRecievedByOperator,
     updatestartProductionTime,
-    updatePauseProductionTime,
-    // updateTransferedQuantity,
+    updatePauseProductionTime,updateIssueForMachine,
+    // updateTransferedQuantity,,
     addIssueForMachine,
     addCompletedQuantity, saveDownTime,
     addWastedQuantity, updateStatus, getProductionTime, updateDownTime,
@@ -24,6 +24,7 @@ router.post('/production/order/update/pause-production-time', middleware, update
 router.post('/update/recieved-by-operator/:id', middleware, updateRecievedByOperator);
 // router.post('/update/transfered-quantity', middleware, updateTransferedQuantity);
 router.post('/add/issue-for-machine', middleware, addIssueForMachine);
+router.post('/update/issue-for-machine', middleware, updateIssueForMachine);
 router.post('/add/completed-quantity', middleware, addCompletedQuantity);
 router.post('/add/wasted-quantity', middleware, addWastedQuantity);
 router.get('/get/remaining-quantity/:id', middleware, remainingQty);

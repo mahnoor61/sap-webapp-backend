@@ -25,7 +25,7 @@ const jobAssigningSchema = new mongoose.Schema({
 
     recieveByPreviousRoute: {type: Number, default: 0},
 
-    currentPallateNo: {type: Number, default: 0},
+    currentPallateNo: {type: Number, default: 1},
     issueForMachine: {type: Number, default: 0},
     completedQuantity: {type: Number, default: 0},
     wastedQuantity: {type: Number, default: 0},
