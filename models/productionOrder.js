@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const ProductionOrderSchema = new mongoose.Schema({
-    docNum: {type: Number, required: true, unique: true},
+    docNum: {type: Number, required: true},
     itemCode: String,
     prodName: String,
     plannedQty: Number,

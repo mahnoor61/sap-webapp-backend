@@ -5,25 +5,31 @@ const {success_response, error_response} = require("../../utils/response");
 
 exports.getProductionOrderNos = async (req, res) => {
     try {
-        const productionOrder = await ProductionOrder.find();
 
-        let docNumArray = productionOrder.map(data => {
-            return {
-                docNum: data.docNum
-            };
+        const assignedJobs = await Job.find({}, 'productionOrderNo');
+        const assignedDocNums = assignedJobs.map(job => job.productionOrderNo);
+
+        const productionOrders = await ProductionOrder.find({
+            docNum: { $nin: assignedDocNums }
         });
 
-        //     const SAP_ODBC_CONNECTION_STRING = process.env.SAP_CONNECTION_STRING;
+        console.log("productionOrders", productionOrders)
+
+        // Step 3: Map to simplified response
+        const docNumArray = productionOrders.map(data => ({
+            docNum: data.docNum
+        }));
+
+        // const productionOrder = await ProductionOrder.find();
         //
-        //     const connection = await odbc.connect(SAP_ODBC_CONNECTION_STRING);
+        // let docNumArray = productionOrder.map(data => {
+        //     return {
+        //         docNum: data.docNum
+        //     };
+        // });
         //
-        //     const query = `
-        //    SELECT T0.[DocNum] FROM OWOR T0  INNER JOIN WOR1 T1 ON T0.[DocEntry] = T1.[DocEntry] WHERE T1.[ItemCode] LIKE '%SHT%' and  T0.[Status] = 'R'
-        // `;
-        //
-        //     const result = await connection.query(query);
-        //     await connection.close();
-        return success_response(res, 200, "Productin Order fetch Successfully", docNumArray);
+        // console.log("docNumArray",docNumArray)
+        return success_response(res, 200, "Production Order fetch Successfully", docNumArray);
     } catch (error) {
         console.log("odbc connection error", error)
         return error_response(res, 500, error.message);
