@@ -295,35 +295,117 @@ exports.getLastRouteOfProductionOrder = async (req, res) => {
 }
 
 
+// exports.updateRecievedByOperator = async (req, res) => {
+//     try {
+//         let {
+//             recievedByOperator
+//         } = req.body;
+//
+//         const {id} = req.params;
+//
+//         if (!(recievedByOperator)) {
+//             return error_response(res, 400, 'All inputs are required!');
+//         }
+//
+//         recievedByOperator = Math.abs(recievedByOperator);
+//
+//         const update = await Job.findOne({_id: id}).populate('productionOrderDataId');
+//
+//         const currentRoute = update.routeNo;
+//         const allJobs = await Job.find({productionOrderNo: update.productionOrderNo});
+//
+//         const routes = allJobs.map(r => r.routeNo);
+//         const firstRoute = Math.min(...routes);
+//         const isFirstRoute = currentRoute === firstRoute;
+//
+//         if (isFirstRoute) {
+//             const transferredQty = update.productionOrderDataId.TransferredQuantity;
+//             const totalReceiving = update.recievedByOperator + recievedByOperator;
+//
+//             if (totalReceiving > transferredQty) {
+//                 return error_response(
+//                     res,
+//                     400,
+//                     'The quantity received by the operator cannot exceed the transferred quantity!'
+//                 );
+//             }
+//         }
+//
+//         // Allow update regardless of route, or return error if not first
+//         update.recievedByOperator += recievedByOperator;
+//         await update.save();
+//         return success_response(res, 200, 'Received by operator updated successfully', update);
+//
+//     } catch (error) {
+//         console.error(error);
+//         return error_response(res, 500, error.message);
+//     }
+// };
 exports.updateRecievedByOperator = async (req, res) => {
     try {
-        let {
-            recievedByOperator
-        } = req.body;
-        const {id} = req.params;
+        let { recievedByOperator } = req.body;
+        const { id } = req.params;
 
-        if (!(recievedByOperator)) {
+        if (!recievedByOperator) {
             return error_response(res, 400, 'All inputs are required!');
         }
 
         recievedByOperator = Math.abs(recievedByOperator);
 
-        const update = await Job.findOne({_id: id}).populate('productionOrderDataId');
+        const update = await Job.findOne({ _id: id }).populate('productionOrderDataId');
 
-        if (update.recievedByOperator + recievedByOperator > update.productionOrderDataId.TransferredQuantity) {
-            return error_response(res, 400, 'The quantity received by the operator cannot exceed the transferred quantity! ');
+        if (!update) {
+            return error_response(res, 404, 'Job not found!');
+        }
+
+        const currentRoute = Number(update.routeNo);
+        const allJobs = await Job.find({ productionOrderNo: update.productionOrderNo });
+
+        const routes = allJobs.map(r => Number(r.routeNo));
+        const firstRoute = Math.min(...routes);
+        const isFirstRoute = currentRoute === firstRoute;
+
+        if (isFirstRoute) {
+            const transferredQty = update.productionOrderDataId?.TransferredQuantity || 0;
+            const totalReceiving = update.recievedByOperator + recievedByOperator;
+
+            if (totalReceiving > transferredQty) {
+                return error_response(
+                    res,
+                    400,
+                    'The quantity received by operator cannot exceed by transferred quantity!'
+                );
+            }
+        } else {
+            // Find previous route (max routeNo < currentRoute)
+            const previousRoutes = allJobs
+                .filter(j => (j.routeNo) < currentRoute)
+                .sort((a, b) => Number(b.routeNo) - Number(a.routeNo)); // sort descending
+
+            const previousJob = previousRoutes[0];
+            const completedQty = previousJob.totalCompletedQuantity;
+            const totalReceiving = update.recievedByOperator + recievedByOperator;
+
+            if (totalReceiving > completedQty) {
+                return error_response(
+                    res,
+                    400,
+                    'The quantity received by operator cannot exceed by previous route completed quantity!'
+                );
+            }
         }
 
         update.recievedByOperator += recievedByOperator;
         await update.save();
 
-        return success_response(res, 200, `Recieved by operator  updated successfully`, update);
+        return success_response(res, 200, 'Received by operator updated successfully', update);
 
     } catch (error) {
         console.error(error);
         return error_response(res, 500, error.message);
     }
 };
+
 // exports.addIssueForMachine = async (req, res) => {
 //     try {
 //         let {issueForMachine, id} = req.body;

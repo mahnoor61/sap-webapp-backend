@@ -12,7 +12,7 @@ exports.getProductionOrderNos = async (req, res) => {
         const productionOrders = await ProductionOrder.find({
             docNum: { $nin: assignedDocNums }
         });
-        
+
         // Step 3: Map to simplified response
         const docNumArray = productionOrders.map(data => ({
             docNum: data.docNum
