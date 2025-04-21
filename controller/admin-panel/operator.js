@@ -311,7 +311,7 @@ exports.updateRecievedByOperator = async (req, res) => {
         const update = await Job.findOne({_id: id}).populate('productionOrderDataId');
 
         if (update.recievedByOperator + recievedByOperator > update.productionOrderDataId.TransferredQuantity) {
-            return error_response(res, 400, 'Recieve by operator is not exceed from transfered quantity!');
+            return error_response(res, 400, 'The quantity received by the operator cannot exceed the transferred quantity! ');
         }
 
         update.recievedByOperator += recievedByOperator;
