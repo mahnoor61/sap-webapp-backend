@@ -352,7 +352,7 @@ exports.addIssueForMachine = async (req, res) => {
         const wastedQty = currentJob.wastedQuantity;
 
         if (issue > completedQty + wastedQty) {
-            return error_response(res, 400, 'Previous pallet is not completed yet. Complete or waste the remaining quantity first.');
+            return error_response(res, 400, 'The previous pallet is not yet complete.Please complete or discard the remaining quantity first!');
         }
 
         currentJob.currentPallateNo += 1;
