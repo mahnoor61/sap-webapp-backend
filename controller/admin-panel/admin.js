@@ -177,13 +177,14 @@ exports.destroy = async (req, res) => {
 exports.allUsers = async (req, res) => {
     try {
 
-        const adminRole = await Role.findOne({name: 'admin'});
+        // const adminRole = await Role.findOne({name: 'admin'});
+        //
+        // if (!adminRole) {
+        //     return error_response(res, 404, "Admin role not found!");
+        // }
 
-        if (!adminRole) {
-            return error_response(res, 404, "Admin role not found!");
-        }
-
-        const allUsers = await User.find({role: {$ne: adminRole._id}}).sort({createdAt: -1}).populate('role', 'name').populate('machine', 'code').exec();
+        // const allUsers = await User.find({role: {$ne: adminRole._id}}).sort({createdAt: -1}).populate('role', 'name').populate('machine', 'code').exec();
+        const allUsers = await User.find().sort({createdAt: -1}).populate('role', 'name').populate('machine', 'code').exec();
 
         if (allUsers.length > 0) {
             return success_response(res, 200, "Users fetched successfully", allUsers);
