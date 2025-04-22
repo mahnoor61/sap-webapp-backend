@@ -10,7 +10,7 @@ exports.getProductionOrderNos = async (req, res) => {
         const assignedDocNums = assignedJobs.map(job => job.productionOrderNo);
 
         const productionOrders = await ProductionOrder.find({
-            docNum: { $nin: assignedDocNums }
+            docNum: {$nin: assignedDocNums}
         });
 
         // Step 3: Map to simplified response
@@ -36,7 +36,7 @@ exports.getProductionOrderNos = async (req, res) => {
 exports.getOperatorPortalData = async (req, res) => {
     try {
 
-        const productionOrder = await Job.find().populate('productionOrderDataId').sort({createdAt: -1});
+        const productionOrder = await Job.find().populate('productionOrderDataId').sort({createdAt: -1}).populate('machine', 'code').populate('route', 'code');
         // console.log("productionOrder", productionOrder)
 
         //       const SAP_ODBC_CONNECTION_STRING = process.env.SAP_CONNECTION_STRING;
@@ -80,7 +80,7 @@ exports.getDocNumData = async (req, res) => {
     try {
         const {id} = req.params;
 
-        const getData = await Job.findOne({_id:id}).populate('productionOrderDataId').populate('user', 'userName').populate('machine', 'code').populate('route', 'code');
+        const getData = await Job.findOne({_id: id}).populate('productionOrderDataId').populate('user', 'userName').populate('machine', 'code').populate('route', 'code');
 
         if (!getData) {
             return error_response(res, 400, "Production Order detail not exist");
