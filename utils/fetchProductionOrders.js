@@ -139,7 +139,7 @@ exports.fetchAndSyncSAPOrders = async () => {
     try {
         const SAP_ODBC_CONNECTION_STRING = process.env.SAP_CONNECTION_STRING;
         const connection = await odbc.connect(SAP_ODBC_CONNECTION_STRING);
-        const query = `SELECT TOP 100
+        const query = `SELECT TOP 500
             T0.[DocNum],
             T0.[ItemCode],
             T0.[ProdName],
