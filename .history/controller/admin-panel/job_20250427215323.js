@@ -24,9 +24,6 @@ exports.createJob = async (req, res) => {
       docNum: productionOrderNo,
       ComponentItemCode,
     });
-
-    console.log("prodDetail", prodDetail);
-
     // // Create new job
     const data = assignments.map((assign, index) => {
       return Job.create({
@@ -86,16 +83,17 @@ exports.updateJob = async (req, res) => {
 
     const existingJob = await Job.findOne({ _id: id });
 
+    const ComponentItemCode = existingJob.existingJob;
+    console.log("ComponentItemCode", ComponentItemCode);
+
     if (!existingJob) {
       return error_response(res, 400, "This job does not exist.");
     }
 
     if (productionOrderNo) {
       existingJob.productionOrderNo = productionOrderNo;
-    }
-    if (ComponentItemCode) {
-      existingJob.ComponentItemCode = ComponentItemCode;
-    }
+      }
+      
     if (user) {
       existingJob.user = user;
     }

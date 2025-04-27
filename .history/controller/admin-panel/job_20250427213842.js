@@ -24,15 +24,11 @@ exports.createJob = async (req, res) => {
       docNum: productionOrderNo,
       ComponentItemCode,
     });
-
-    console.log("prodDetail", prodDetail);
-
     // // Create new job
     const data = assignments.map((assign, index) => {
       return Job.create({
         productionOrderNo,
         productionOrderDataId: prodDetail._id,
-        ComponentItemCode,
         user: assign.user,
         machine: assign.machine,
         route: assign.route,
@@ -69,6 +65,12 @@ exports.allJobs = async (req, res) => {
       .populate("route", "code")
       .populate("user", "userName");
 
+    //
+    // const allDocs = await ProdDetail.find({}, { docNum: 1, _id: 0 });
+    // const existingDocNums = allDocs.map(doc => doc.docNum);
+    // const docNumCondition = existingDocNums.length > 0 ? `AND T0.[DocNum] NOT IN (${existingDocNums.join(', ')})` : '';
+    // console.log("docNumCondition", docNumCondition)
+
     if (all.length > 0) {
       return success_response(res, 200, "Jobs fetch successfully", all);
     }
@@ -80,8 +82,7 @@ exports.allJobs = async (req, res) => {
 };
 exports.updateJob = async (req, res) => {
   try {
-    const { productionOrderNo, user, route, machine, ComponentItemCode } =
-      req.body;
+    const { productionOrderNo, user, route, machine } = req.body;
     const { id } = req.params;
 
     const existingJob = await Job.findOne({ _id: id });
@@ -92,9 +93,6 @@ exports.updateJob = async (req, res) => {
 
     if (productionOrderNo) {
       existingJob.productionOrderNo = productionOrderNo;
-    }
-    if (ComponentItemCode) {
-      existingJob.ComponentItemCode = ComponentItemCode;
     }
     if (user) {
       existingJob.user = user;

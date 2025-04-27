@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const jobAssigningSchema = new mongoose.Schema(
   {
@@ -19,7 +19,8 @@ const jobAssigningSchema = new mongoose.Schema(
       required: true,
       ref: "Production-Order",
     },
-    ComponentItemCode: { type: String },
+    ComponentItemCode: {type:String}
+
     routeNo: { type: Number },
     status: {
       type: String,
@@ -57,4 +58,4 @@ const jobAssigningSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-module.exports = mongoose.model("job-assigning", jobAssigningSchema);
+module.exports = mongoose.model('job-assigning', jobAssigningSchema)

@@ -24,8 +24,8 @@ exports.createJob = async (req, res) => {
       docNum: productionOrderNo,
       ComponentItemCode,
     });
-
-    console.log("prodDetail", prodDetail);
+      
+      console.log("prodDetail");
 
     // // Create new job
     const data = assignments.map((assign, index) => {
