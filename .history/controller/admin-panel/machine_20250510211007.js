@@ -24,7 +24,7 @@ exports.createMachine = async (req, res) => {
     }
     const createMachine = await Machine.create({
       code: machine,
-      route: routeId,
+      route,
     });
     return success_response(
       res,

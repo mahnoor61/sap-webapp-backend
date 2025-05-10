@@ -11,20 +11,15 @@ exports.createMachine = async (req, res) => {
       return error_response(res, 400, "All inputs are required");
     }
 
-    const existingMachine = await Machine.findOne({
-      code: machine,
-      route: routeId,
-    });
-    // const existingRoute = await Route.findOne({ _id: routeId });
-
-    // console.log("existingRoute", existingRoute);
+    // const existingMachine = await Machine.findOne({ code: machine , route: });
+    const existingMachine = await Route.findOne({ _id: routeId });
 
     if (existingMachine) {
       return error_response(res, 400, "This machine already exist.");
     }
     const createMachine = await Machine.create({
       code: machine,
-      route: routeId,
+      route,
     });
     return success_response(
       res,

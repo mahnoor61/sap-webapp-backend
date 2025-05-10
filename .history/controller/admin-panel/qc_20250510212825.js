@@ -237,7 +237,7 @@ exports.getQcCurrentTableData = async (req, res) => {
 
 exports.getAllPrintingMachines = async (req, res) => {
   try {
-    const route = await Route.findOne({ code: "04 Printing" });
+    const route = Route.findOne({ code: "04 Printing" });
     if (!route) {
       return error_response(res, 400, "Printing route not found in db!");
     }

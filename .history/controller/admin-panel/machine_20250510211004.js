@@ -17,14 +17,14 @@ exports.createMachine = async (req, res) => {
     });
     // const existingRoute = await Route.findOne({ _id: routeId });
 
-    // console.log("existingRoute", existingRoute);
+    console.log("existingRoute", existingRoute);
 
     if (existingMachine) {
       return error_response(res, 400, "This machine already exist.");
     }
     const createMachine = await Machine.create({
       code: machine,
-      route: routeId,
+      route,
     });
     return success_response(
       res,

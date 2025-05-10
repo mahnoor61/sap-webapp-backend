@@ -3,7 +3,6 @@ const QC = require("../../models/qc");
 const Printing = require("../../models/printing");
 const Machine = require("../../models/machine");
 const Production = require("../../models/productionOrder");
-const Route = require("../../models/routeStage");
 
 const { success_response, error_response } = require("../../utils/response");
 
@@ -237,19 +236,12 @@ exports.getQcCurrentTableData = async (req, res) => {
 
 exports.getAllPrintingMachines = async (req, res) => {
   try {
-    const route = await Route.findOne({ code: "04 Printing" });
+    const route = Route.findOne({ code: "04 Printing" });
     if (!route) {
       return error_response(res, 400, "Printing route not found in db!");
     }
-
-    const getAllMachines = await Machine.find({ route: route._id });
-
-    return success_response(
-      res,
-      200,
-      "All printing machines fetch successfully",
-      getAllMachines
-    );
+    const routeId = route._id;
+    
   } catch (error) {
     console.log("error");
     return error_response(res, 500, error.message);

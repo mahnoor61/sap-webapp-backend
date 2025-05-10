@@ -8,7 +8,6 @@ const {
   createPrinting,
   getData,
   getQcCurrentTableData,
-  getAllPrintingMachines,
 } = require("../../controller/admin-panel/qc");
 
 //machine route

@@ -1,30 +1,22 @@
 const Machine = require("../../models/machine");
-const Route = require("../../models/routeStage");
 const { success_response, error_response } = require("../../utils/response");
 const Role = require("../../models/role");
 
 exports.createMachine = async (req, res) => {
   try {
-    const { machine, routeId } = req.body;
+    const { machine, route } = req.body;
 
-    if (!(machine && routeId)) {
+    if (!(machine)) {
       return error_response(res, 400, "All inputs are required");
     }
 
-    const existingMachine = await Machine.findOne({
-      code: machine,
-      route: routeId,
-    });
-    // const existingRoute = await Route.findOne({ _id: routeId });
-
-    // console.log("existingRoute", existingRoute);
+    const existingMachine = await Machine.findOne({ code: machine });
 
     if (existingMachine) {
       return error_response(res, 400, "This machine already exist.");
     }
     const createMachine = await Machine.create({
       code: machine,
-      route: routeId,
     });
     return success_response(
       res,
