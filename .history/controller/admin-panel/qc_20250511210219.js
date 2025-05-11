@@ -67,7 +67,7 @@ exports.saveQuantityOrTimeForQC = async (req, res) => {
 
     if (quantity !== undefined) {
       qcData.quantity = quantity;
-      qcData.time = new Date().toString();
+      qcData.time = new Date().toString(); // e.g., "Sun May 11 2025 21:37:25 GMT+0500 (Pakistan Standard Time)"
 
       // qcData.time = new Date().toISOString();
     }
