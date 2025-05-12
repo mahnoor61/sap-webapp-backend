@@ -54,7 +54,7 @@ exports.getAllAssignJobOfMachine = async (req, res) => {
 
 exports.saveQuantityOrTimeForQC = async (req, res) => {
   try {
-    const { quantity, makeTime, quantityTime, userId, jobId } = req.body;
+    const { quantity, makeTime, quantityTime userId, jobId } = req.body;
 
     if (!(jobId && userId)) {
       return error_response(res, 400, "User ID and Job ID are required!");
@@ -67,7 +67,7 @@ exports.saveQuantityOrTimeForQC = async (req, res) => {
 
     if (quantity !== undefined) {
       qcData.quantity = quantity;
-      qcData.time = quantityTime;
+      qcData.time = new Date().toString();
 
       // qcData.time = new Date().toISOString();
     }
