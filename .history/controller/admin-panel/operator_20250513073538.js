@@ -834,9 +834,7 @@ exports.getCompletedQtyOfPreviousRoute = async (req, res) => {
     const lastRouteJob = await Job.findOne({
       productionOrderNo: productionOrder,
       ComponentItemCode,
-    })
-      .sort({ routeNo: -1 })
-      .populate("productionOrderDataId");
+    }).sort({ routeNo: -1 });
 
     if (!lastRouteJob) {
       return error_response(
@@ -850,7 +848,8 @@ exports.getCompletedQtyOfPreviousRoute = async (req, res) => {
 
     // If current route is the last route, multiply with UPS
     if (lastRouteJob.routeNo === routeNo) {
-      const UPS = lastRouteJob.productionOrderDataId.U_UPS; // Default to 1 if UPS is undefined/null
+      console.log("lastRouteJob.routeNo === routeNo");
+      const UPS = lastRouteJob.U_UPS; // Default to 1 if UPS is undefined/null
       responseQty = totalCompleteQtyOfPreviousRoute * UPS;
     }
 

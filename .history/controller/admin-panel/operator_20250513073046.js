@@ -773,39 +773,6 @@ exports.remainingQty = async (req, res) => {
   }
 };
 
-// exports.getCompletedQtyOfPreviousRoute = async (req, res) => {
-//   try {
-//     const { productionOrder, routeNo, id, ComponentItemCode } = req.body;
-
-//     if (!(productionOrder && routeNo && id && ComponentItemCode)) {
-//       return error_response(res, 400, "All inputs are required!");
-//     }
-//     const previousRoute = routeNo - 1;
-
-//     const jobOfPreviousRoute = await Job.findOne({
-//       productionOrderNo: productionOrder,
-//       ComponentItemCode,
-//       routeNo: previousRoute,
-//     });
-
-//     if (!jobOfPreviousRoute) {
-//       return error_response(res, 400, "Previous Route Not Found!");
-//     }
-
-//     const totalCompleteQtyOfPreviousRoute =
-//       jobOfPreviousRoute.totalCompletedQuantity;
-
-//     return success_response(
-//       res,
-//       200,
-//       " Total completed quantity of previous route fetch successfully",
-//       totalCompleteQtyOfPreviousRoute
-//     );
-//   } catch (error) {
-//     console.log(error);
-//     return error_response(res, 500, error.message);
-//   }
-// };
 exports.getCompletedQtyOfPreviousRoute = async (req, res) => {
   try {
     const { productionOrder, routeNo, id, ComponentItemCode } = req.body;
@@ -813,10 +780,8 @@ exports.getCompletedQtyOfPreviousRoute = async (req, res) => {
     if (!(productionOrder && routeNo && id && ComponentItemCode)) {
       return error_response(res, 400, "All inputs are required!");
     }
-
     const previousRoute = routeNo - 1;
 
-    // Get the job of the previous route
     const jobOfPreviousRoute = await Job.findOne({
       productionOrderNo: productionOrder,
       ComponentItemCode,
@@ -830,41 +795,81 @@ exports.getCompletedQtyOfPreviousRoute = async (req, res) => {
     const totalCompleteQtyOfPreviousRoute =
       jobOfPreviousRoute.totalCompletedQuantity;
 
-    // Get the last route (maximum routeNo for the production order)
-    const lastRouteJob = await Job.findOne({
-      productionOrderNo: productionOrder,
-      ComponentItemCode,
-    })
-      .sort({ routeNo: -1 })
-      .populate("productionOrderDataId");
-
-    if (!lastRouteJob) {
-      return error_response(
-        res,
-        400,
-        "No job found for this production order."
-      );
-    }
-
-    let responseQty = totalCompleteQtyOfPreviousRoute;
-
-    // If current route is the last route, multiply with UPS
-    if (lastRouteJob.routeNo === routeNo) {
-      const UPS = lastRouteJob.productionOrderDataId.U_UPS; // Default to 1 if UPS is undefined/null
-      responseQty = totalCompleteQtyOfPreviousRoute * UPS;
-    }
-
     return success_response(
       res,
       200,
-      "Total completed quantity of previous route fetched successfully",
-      responseQty
+      " Total completed quantity of previous route fetch successfully",
+      totalCompleteQtyOfPreviousRoute
     );
   } catch (error) {
     console.log(error);
     return error_response(res, 500, error.message);
   }
-};
+// };
+// exports.getCompletedQtyOfPreviousRoute = async (req, res) => {
+//   try {
+//     const { productionOrder, routeNo, id, ComponentItemCode } = req.body;
+//     console.log("req.body", req.body);
+
+//     if (!(productionOrder && routeNo && id && ComponentItemCode)) {
+//       return error_response(res, 400, "All inputs are required!");
+//     }
+
+//     const previousRoute = routeNo - 1;
+
+//     // Find the previous route job
+//     const jobOfPreviousRoute = await Job.findOne({
+//       productionOrderNo: productionOrder,
+//       ComponentItemCode,
+//       routeNo: previousRoute,
+//     });
+
+//     if (!jobOfPreviousRoute) {
+//       return error_response(res, 400, "Previous Route Not Found!");
+//     }
+
+//     const totalCompleteQtyOfPreviousRoute =
+//       jobOfPreviousRoute.totalCompletedQuantity;
+
+//     // Get the last route (highest routeNo)
+//     const lastRouteJob = await Job.findOne({
+//       productionOrderNo: productionOrder,
+//       ComponentItemCode,
+//     }).sort({ routeNo: -1 });
+
+//     console.log("lastRouteJob", lastRouteJob);
+
+//     if (!lastRouteJob) {
+//       return error_response(
+//         res,
+//         400,
+//         "No jobs found for this production order."
+//       );
+//     }
+
+//     let responseQty = totalCompleteQtyOfPreviousRoute;
+//     console.log("responseQty before UPS", responseQty);
+
+//     if (lastRouteJob.routeNo === routeNo) {
+//       // This is the last route, so multiply with UPS
+//       const UPS = lastRouteJob.U_UPS;
+//       if (!UPS) {
+//         return error_response(res, 400, "UPS not found for the last route.");
+//       }
+//       responseQty = totalCompleteQtyOfPreviousRoute * UPS;
+//     }
+
+//     return success_response(
+//       res,
+//       200,
+//       "Total completed quantity of previous route fetched successfully",
+//       responseQty
+//     );
+//   } catch (error) {
+//     console.log(error);
+//     return error_response(res, 500, error.message);
+//   }
+// };
 
 exports.getFirstRouteForIssueToPostDataIntoSap = async (req, res) => {
   try {

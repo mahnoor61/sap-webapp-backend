@@ -850,6 +850,7 @@ exports.getCompletedQtyOfPreviousRoute = async (req, res) => {
 
     // If current route is the last route, multiply with UPS
     if (lastRouteJob.routeNo === routeNo) {
+    
       const UPS = lastRouteJob.productionOrderDataId.U_UPS; // Default to 1 if UPS is undefined/null
       responseQty = totalCompleteQtyOfPreviousRoute * UPS;
     }
