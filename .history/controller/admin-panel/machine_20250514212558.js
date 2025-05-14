@@ -39,7 +39,7 @@ exports.createMachine = async (req, res) => {
 };
 exports.allMachine = async (req, res) => {
   try {
-    const allMachine = await Machine.find().populate("route");
+    const allMachine = await Machine.find().populate('r');
 
     if (allMachine.length > 0) {
       return success_response(

@@ -73,7 +73,6 @@ exports.allJobs = async (req, res) => {
     //   return success_response(res, 200, "Jobs fetch successfully", all);
     // }
     // return success_response(res, 200, "Jobs not found!", []);
-    return success_response(res, 200, "Jobs fetch successfully", all);
   } catch (error) {
     console.error(error);
     return error_response(res, 500, error.message);
