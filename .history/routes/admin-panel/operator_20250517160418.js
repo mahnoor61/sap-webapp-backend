@@ -39,11 +39,6 @@ router.post(
   updatestartProductionTime
 );
 router.post(
-  "/production/order/break/production-time",
-  middleware,
-  breakJobTime
-);
-router.post(
   "/production/order/update/pause-production-time",
   middleware,
   updatePauseProductionTime

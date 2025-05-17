@@ -335,12 +335,12 @@ exports.saveDownTime = async (req, res) => {
     return error_response(res, 500, error.message);
   }
 };
-exports.breakJobTime = async (req, res) => {
+exports.break = async (req, res) => {
   //when resume button is click  pause prodction time store and get strt production time from db
   try {
-    const { id, startProductionTime } = req.body;
+    const { id, downTime } = req.body;
 
-    if (!(id && startProductionTime)) {
+    if (!(id && downTime)) {
       return error_response(res, 400, "All inputs are required!");
     }
 
@@ -350,10 +350,11 @@ exports.breakJobTime = async (req, res) => {
       return error_response(res, 400, "Production order not find!");
     }
 
-    update.startProductionTime = startProductionTime;
-    update.status = "job-break";
+    // update.downTime = downTime;
+    update.downTime.push({ time: downTime });
+    update.status = "running";
     await update.save();
-    return success_response(res, 200, `Job break successfully`, update);
+    return success_response(res, 200, `Down time saves successfully`, update);
   } catch (error) {
     console.error(error);
     return error_response(res, 500, error.message);

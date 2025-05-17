@@ -23,7 +23,7 @@ const {
   updateStopProductionTime,
   getLastRouteOfProductionOrder,
   getLastRouteForCompletedToPostDataIntoSap,
-  breakJobTime,
+  breakJobTime,,
 } = require("../../controller/admin-panel/operator");
 
 //sap connection route:
@@ -37,11 +37,6 @@ router.post(
   "/production/order/update/production-time",
   middleware,
   updatestartProductionTime
-);
-router.post(
-  "/production/order/break/production-time",
-  middleware,
-  breakJobTime
 );
 router.post(
   "/production/order/update/pause-production-time",

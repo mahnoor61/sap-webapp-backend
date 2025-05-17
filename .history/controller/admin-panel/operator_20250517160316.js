@@ -350,7 +350,8 @@ exports.breakJobTime = async (req, res) => {
       return error_response(res, 400, "Production order not find!");
     }
 
-    update.startProductionTime = startProductionTime;
+    // update.downTime = downTime;
+    update.downTime.push({ time: downTime });
     update.status = "job-break";
     await update.save();
     return success_response(res, 200, `Job break successfully`, update);
