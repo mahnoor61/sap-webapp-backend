@@ -325,8 +325,7 @@ exports.saveDownTime = async (req, res) => {
       return error_response(res, 400, "Production order not find!");
     }
 
-    // update.downTime = downTime;
-    update.downTime.push({ time: downTime });
+    update.downTime = downTime;
     update.status = "running";
     await update.save();
     return success_response(res, 200, `Down time saves successfully`, update);

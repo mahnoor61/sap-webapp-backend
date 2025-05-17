@@ -326,7 +326,7 @@ exports.saveDownTime = async (req, res) => {
     }
 
     // update.downTime = downTime;
-    update.downTime.push({ time: downTime });
+    update.downTimeReason.push({ time: downTimeReason });
     update.status = "running";
     await update.save();
     return success_response(res, 200, `Down time saves successfully`, update);

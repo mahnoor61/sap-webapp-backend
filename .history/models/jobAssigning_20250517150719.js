@@ -56,7 +56,7 @@ const jobAssigningSchema = new mongoose.Schema(
     // pauseReason: { type: String, default: null },
     stopProductionTime: { type: String, default: "00:00:00" },
     stopReason: { type: String, default: null },
-    downTime: {
+    pauseProductionTime: {
       type: [
         {
           time: { type: String },
@@ -64,7 +64,7 @@ const jobAssigningSchema = new mongoose.Schema(
       ],
       default: [],
     },
-    downTimeReason: {
+    pauseReason: {
       type: [
         {
           reason: { type: String, default: null },

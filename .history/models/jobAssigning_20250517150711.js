@@ -56,22 +56,6 @@ const jobAssigningSchema = new mongoose.Schema(
     // pauseReason: { type: String, default: null },
     stopProductionTime: { type: String, default: "00:00:00" },
     stopReason: { type: String, default: null },
-    downTime: {
-      type: [
-        {
-          time: { type: String },
-        },
-      ],
-      default: [],
-    },
-    downTimeReason: {
-      type: [
-        {
-          reason: { type: String, default: null },
-        },
-      ],
-      default: [],
-    },
     // downTime: { type: String, default: "00:00:00" },
     // downTimeReason: { type: String, default: null },
     recievedByOperator: { type: Number, default: 0 },

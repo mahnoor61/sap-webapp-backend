@@ -37,43 +37,18 @@ const jobAssigningSchema = new mongoose.Schema(
     makeTime: { type: String, default: "00:00:00" },
     startProductionTime: { type: String, default: "00:00:00" },
     // pauseProductionTime: { type: String, default: "00:00:00" },
-    pauseProductionTime: {
-      type: [
-        {
-          time: { type: String },
-        },
-      ],
-      default: [],
-    },
-    pauseReason: {
-      type: [
-        {
-          reason: { type: String, default: null },
-        },
-      ],
-      default: [],
-    },
+    pauseProductionTime: [
+      {
+        // time: { type: String, default: "00:00:00" },
+        time: { type: String },
+      },
+    ],
+    pauseReason: [{ type: String, default: null }],
     // pauseReason: { type: String, default: null },
     stopProductionTime: { type: String, default: "00:00:00" },
     stopReason: { type: String, default: null },
-    downTime: {
-      type: [
-        {
-          time: { type: String },
-        },
-      ],
-      default: [],
-    },
-    downTimeReason: {
-      type: [
-        {
-          reason: { type: String, default: null },
-        },
-      ],
-      default: [],
-    },
-    // downTime: { type: String, default: "00:00:00" },
-    // downTimeReason: { type: String, default: null },
+    downTime: { type: String, default: "00:00:00" },
+    downTimeReason: { type: String, default: null },
     recievedByOperator: { type: Number, default: 0 },
     remainingQuantity: { type: Number, default: 0 },
 

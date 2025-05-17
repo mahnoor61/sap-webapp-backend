@@ -64,7 +64,7 @@ const jobAssigningSchema = new mongoose.Schema(
       ],
       default: [],
     },
-    downTimeReason: {
+    pauseReason: {
       type: [
         {
           reason: { type: String, default: null },

@@ -79,8 +79,7 @@ exports.updatestartProductionTime = async (req, res) => {
     }
 
     update.startProductionTime = startProductionTime;
-    update.pauseReason.push({ reason: pauseReason });
-    // update.pauseReason = pauseReason;
+    update.pauseReason = pauseReason;
     update.status = "paused";
     await update.save();
     return success_response(res, 200, `Data updated successfully`, update);
@@ -299,9 +298,7 @@ exports.updateDownTime = async (req, res) => {
     }
 
     update.startProductionTime = startProductionTime;
-    update.downTimeReason.push({ reason: downTimeReason });
-
-    // update.downTimeReason = downTimeReason;
+    update.downTimeReason = downTimeReason;
     update.status = "downtime";
     await update.save();
     return success_response(res, 200, `Down time updated successfully`, update);
@@ -325,8 +322,7 @@ exports.saveDownTime = async (req, res) => {
       return error_response(res, 400, "Production order not find!");
     }
 
-    // update.downTime = downTime;
-    update.downTime.push({ time: downTime });
+    update.downTime = downTime;
     update.status = "running";
     await update.save();
     return success_response(res, 200, `Down time saves successfully`, update);
