@@ -44,7 +44,7 @@ exports.updatemakeTime = async (req, res) => {
   try {
     const { id, makeTime, totalWastedQuantity } = req.body;
 
-    if (!(id && makeTime)) {
+    if (!(id && makeTime && totalWastedQuantity)) {
       return error_response(res, 400, "All inputs are required!");
     }
 

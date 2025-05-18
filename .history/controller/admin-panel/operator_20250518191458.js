@@ -42,7 +42,7 @@ exports.getOperatorProdcutionData = async (req, res) => {
 
 exports.updatemakeTime = async (req, res) => {
   try {
-    const { id, makeTime, totalWastedQuantity } = req.body;
+    const { id, makeTime , t} = req.body;
 
     if (!(id && makeTime)) {
       return error_response(res, 400, "All inputs are required!");
@@ -53,8 +53,8 @@ exports.updatemakeTime = async (req, res) => {
     if (!update) {
       return error_response(res, 400, "Production order not find!");
     }
-    update.makeTime.push({ time: makeTime, totalWastedQuantity });
-    // update.makeTime = makeTime;
+
+    update.makeTime = makeTime;
     update.status = "running";
     await update.save();
     return success_response(res, 200, `Data updated successfully`, update);

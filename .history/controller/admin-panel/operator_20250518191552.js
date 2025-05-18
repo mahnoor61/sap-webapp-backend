@@ -44,7 +44,7 @@ exports.updatemakeTime = async (req, res) => {
   try {
     const { id, makeTime, totalWastedQuantity } = req.body;
 
-    if (!(id && makeTime)) {
+    if (!(id && makeTime && totalWastedQuantity)) {
       return error_response(res, 400, "All inputs are required!");
     }
 
@@ -53,7 +53,7 @@ exports.updatemakeTime = async (req, res) => {
     if (!update) {
       return error_response(res, 400, "Production order not find!");
     }
-    update.makeTime.push({ time: makeTime, totalWastedQuantity });
+    update.makeTime.push({ time: pauseProductionTime , });
     // update.makeTime = makeTime;
     update.status = "running";
     await update.save();

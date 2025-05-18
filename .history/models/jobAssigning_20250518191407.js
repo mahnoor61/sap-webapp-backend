@@ -39,7 +39,7 @@ const jobAssigningSchema = new mongoose.Schema(
       type: [
         {
           time: { type: String },
-          totalWastedQuantity: { type: Number },
+          totalWastedQuantity
         },
       ],
       default: [],

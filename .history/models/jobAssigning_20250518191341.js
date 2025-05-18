@@ -34,12 +34,11 @@ const jobAssigningSchema = new mongoose.Schema(
       ],
       default: "pending",
     },
-    // makeTime: { type: String, default: "00:00:00" },
-    makeTime: {
+    makeTime: { type: String, default: "00:00:00" },
+    downTime: {
       type: [
         {
           time: { type: String },
-          totalWastedQuantity: { type: Number },
         },
       ],
       default: [],
