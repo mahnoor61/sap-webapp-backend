@@ -4,7 +4,7 @@ const middleware = require("../../middleware/admin");
 
 const {
   getAllAssignJobOfMachine,
-  saveQuantityOrTimeForQC,
+  saveQuantityOrTimeForQC,getQcCurrentTableData
   createPrinting,
   getData,
   getQcCurrentTableData,

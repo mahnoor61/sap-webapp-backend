@@ -67,47 +67,12 @@ exports.saveQuantityOrTimeForQC = async (req, res) => {
 
     const job = await Job.findOne({ _id: jobId });
 
-    if (job.status === "make-ready-time") {
-      return error_response(
-        res,
-        400,
-        "You cannot enter the quantity because the job is currently in the make-ready time.!"
-      );
-    }
-
-    const totalCompQty = job?.totalCompletedQuantity;
-
     if (quantity !== undefined) {
-      const lastQC = await QC.findOne({ jobId }).sort({ createdAt: -1 });
-
-      if (quantity > totalCompQty) {
-        return error_response(
-          res,
-          400,
-          "Entered quantity cannot exceed total completed quantity."
-        );
-      }
-
-      if (
-        lastQC &&
-        lastQC.quantity !== undefined &&
-        quantity <= lastQC.quantity
-      ) {
-        return error_response(
-          res,
-          400,
-          `You must enter a quantity greater than the previous entry (${lastQC.quantity}).`
-        );
-      }
-
       qcData.quantity = quantity;
       qcData.time = quantityTime;
-    }
 
-    // if (quantity !== undefined) {
-    //   qcData.quantity = quantity;
-    //   qcData.time = quantityTime;
-    // }
+      // qcData.time = new Date().toISOString();
+    }
 
     if (makeTime !== undefined) {
       qcData.time = makeTime;

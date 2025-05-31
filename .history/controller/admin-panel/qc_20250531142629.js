@@ -78,8 +78,10 @@ exports.saveQuantityOrTimeForQC = async (req, res) => {
     const totalCompQty = job?.totalCompletedQuantity;
 
     if (quantity !== undefined) {
+      // Get last QC entry for this job (if any)
       const lastQC = await QC.findOne({ jobId }).sort({ createdAt: -1 });
 
+      // Check if quantity exceeds totalCompletedQuantity
       if (quantity > totalCompQty) {
         return error_response(
           res,
@@ -88,6 +90,7 @@ exports.saveQuantityOrTimeForQC = async (req, res) => {
         );
       }
 
+      // Check if quantity is less than or equal to last entered quantity
       if (
         lastQC &&
         lastQC.quantity !== undefined &&

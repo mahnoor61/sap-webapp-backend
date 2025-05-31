@@ -4,7 +4,6 @@ const Printing = require("../../models/printing");
 const Machine = require("../../models/machine");
 const Production = require("../../models/productionOrder");
 const Route = require("../../models/routeStage");
-const Users = require("../../models/user");
 
 const { success_response, error_response } = require("../../utils/response");
 
@@ -55,7 +54,7 @@ exports.getAllAssignJobOfMachine = async (req, res) => {
 
 exports.saveQuantityOrTimeForQC = async (req, res) => {
   try {
-    const { quantity, makeTime, quantityTime, jobId } = req.body;
+    const { quantity, makeTime, quantityTime, userId, jobId } = req.body;
 
     if (!jobId) {
       return error_response(res, 400, "jobId is  required!");
@@ -65,49 +64,12 @@ exports.saveQuantityOrTimeForQC = async (req, res) => {
       jobId,
     };
 
-    const job = await Job.findOne({ _id: jobId });
-
-    if (job.status === "make-ready-time") {
-      return error_response(
-        res,
-        400,
-        "You cannot enter the quantity because the job is currently in the make-ready time.!"
-      );
-    }
-
-    const totalCompQty = job?.totalCompletedQuantity;
-
     if (quantity !== undefined) {
-      const lastQC = await QC.findOne({ jobId }).sort({ createdAt: -1 });
-
-      if (quantity > totalCompQty) {
-        return error_response(
-          res,
-          400,
-          "Entered quantity cannot exceed total completed quantity."
-        );
-      }
-
-      if (
-        lastQC &&
-        lastQC.quantity !== undefined &&
-        quantity <= lastQC.quantity
-      ) {
-        return error_response(
-          res,
-          400,
-          `You must enter a quantity greater than the previous entry (${lastQC.quantity}).`
-        );
-      }
-
       qcData.quantity = quantity;
       qcData.time = quantityTime;
-    }
 
-    // if (quantity !== undefined) {
-    //   qcData.quantity = quantity;
-    //   qcData.time = quantityTime;
-    // }
+      // qcData.time = new Date().toISOString();
+    }
 
     if (makeTime !== undefined) {
       qcData.time = makeTime;
@@ -217,15 +179,10 @@ exports.getData = async (req, res) => {
 
     const machine = qc.jobId.machine;
     const productionDataId = qc.jobId.productionOrderDataId;
-    const userId = qc.jobId.user;
-
     const getMachine = await Machine.findOne({ _id: machine });
     const jobData = await Production.findOne({ _id: productionDataId });
-    const userData = await Users.findOne({ _id: userId });
-
     qc.machine = getMachine;
     qc.jobData = jobData;
-    qc.userData = userData;
     return success_response(res, 200, "Quantity save successfully", qc);
   } catch (error) {
     console.error(error);
@@ -301,118 +258,26 @@ exports.getAllPrintingMachines = async (req, res) => {
     return error_response(res, 500, error.message);
   }
 };
+
 exports.getJobData = async (req, res) => {
   try {
     const { jobId } = req.body;
 
     if (!jobId) {
-      return error_response(res, 400, "Job ID is required!");
+      return error_response(res, 400, "jOB id is required!");
     }
 
-    let job = await QC.findOne({ jobId })
-      .populate("jobId")
-      .populate("userId")
-      .lean();
+    // Get QC records with job, user, and form populated
+    const job = await QC.find({ jobId }).populate("jobId").lean();
 
-    let jobData = null;
-    let machine = null;
-    let userData = null;
-
-    if (job) {
-      // QC record found — extract data from populated jobId
-      const prodId = job.jobId?.productionOrderDataId;
-      const machineId = job.jobId?.machine;
-      const userId = job.jobId?.user;
-
-      if (prodId) {
-        jobData = await Production.findById(prodId).lean();
-        machine = await Machine.findById(machineId).lean();
-        userData = await Users.findById(userId).lean();
-      }
-    } else {
-      // QC record not found — use Job directly
-      const fallbackJob = await Job.findOne({ _id: jobId })
-        .populate("user")
-        .populate("productionOrderDataId")
-        .lean();
-
-      if (!fallbackJob) {
-        return error_response(res, 404, "Job not found in QC or Job table!");
-      }
-
-      // Construct response like QC structure
-      job = {
-        _id: null, // Since QC record nahi hai
-        jobId: fallbackJob,
-        userId: fallbackJob.user,
-        // Add other fields if needed
-      };
-
-      jobData = fallbackJob.productionOrderDataId;
-      machine = await Machine.findById(fallbackJob.machine).lean();
-      userData = fallbackJob.user;
+    if (!job) {
+      return error_response(res, 400, "Job data not found!");
     }
-
-    return success_response(res, 200, "Job data fetched successfully", {
-      ...job,
-      jobData,
-      machine,
-      userData,
-    });
+    const prodId = job.jobId?.productionOrderDataId;
+    job.jobData Production.findById(prodId);
+    return success_response(res, 200, "Job data fetch successfully", job);
   } catch (error) {
     console.error(error);
     return error_response(res, 500, error.message);
   }
 };
-
-// exports.getJobData = async (req, res) => {
-//   try {
-//     const { jobId } = req.body;
-
-//     if (!jobId) {
-//       return error_response(res, 400, "Job ID is required!");
-//     }
-
-//     // Get single QC record and populate jobId field
-//     let job = await QC.findOne({ jobId })
-//       .populate("jobId")
-//       .populate("userId")
-//       .lean();
-
-//     if (!job) {
-//       job = await Job.findOne({ _id: jobId })
-//         .populate("user")
-//         .populate("productionOrderDataId")
-//         .lean();
-//       // return error_response(res, 404, "Job data not found!");
-//     }
-
-//     console.log("job", job);
-
-//     const prodId = job.jobId?.productionOrderDataId;
-//     const machineId = job.jobId?.machine;
-//     const userId = job.jobId?.user;
-
-//     // Fetch ProductionOrderData if prodId exists
-//     let jobData = null;
-//     let machine = null;
-//     let userData = null;
-
-//     if (prodId) {
-//       jobData = await Production.findById(prodId).lean();
-//       machine = await Machine.findById(machineId).lean();
-//       userData = await Users.findById(userId).lean();
-//     }
-
-//     // Include productionOrderData in the response
-//     return success_response(res, 200, "Job data fetched successfully", {
-//       ...job,
-//       jobData,
-//       machine,
-//       userData,
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     return error_response(res, 500, error.message);
-//   }
-// };

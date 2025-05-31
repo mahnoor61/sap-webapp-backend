@@ -8,8 +8,7 @@ const {
   createPrinting,
   getData,
   getQcCurrentTableData,
-  getAllPrintingMachines,
-  getJobData,
+  getAllPrintingMachines,getJobData
 } = require("../../controller/admin-panel/qc");
 
 //machine route
@@ -24,7 +23,7 @@ router.post("/printing/:id", middleware, createPrinting);
 
 router.get("/get/data/:id", middleware, getData);
 router.post("/get/qc-data", middleware, getQcCurrentTableData);
-router.post("/get/job-data", middleware, getJobData);
+router.post("/get/qc-data", middleware, getJobData);
 router.get("/get/printing-machine", middleware, getAllPrintingMachines);
 
 module.exports = router;

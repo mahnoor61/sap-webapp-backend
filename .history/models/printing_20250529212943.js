@@ -1,3 +1,4 @@
+
 const mongoose = require("mongoose");
 
 const responseObjectSchema = {
@@ -7,7 +8,7 @@ const responseObjectSchema = {
 };
 
 const printingSchema = new mongoose.Schema({
-  qcNo: { type: String },
+  qcNo:{}
   shift: { type: String },
   date: { type: String },
   // serialNo: { type: Number },
