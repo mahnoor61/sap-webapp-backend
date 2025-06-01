@@ -25,7 +25,7 @@ exports.createRoles = async (req, res) => {
 };
 exports.allRoles = async (req, res) => {
     try {
-        const allRoles = await Role.find();
+        const allRoles = await Role.find().sort({createdAt:-1});
 
         if (allRoles.length > 0) {
             return success_response(res, 200, "Role fetch successfully", allRoles);

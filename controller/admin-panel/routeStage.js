@@ -26,7 +26,7 @@ exports.createRouteStage = async (req, res) => {
 };
 exports.allRoutes = async (req, res) => {
     try {
-        const all = await Route.find();
+        const all = await Route.find().sort({createdAt:-1});
 
         if (all.length > 0) {
             return success_response(res, 200, "Route fetch successfully", all);

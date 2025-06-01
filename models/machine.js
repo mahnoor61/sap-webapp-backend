@@ -7,5 +7,5 @@ const machineSchema = new mongoose.Schema({
     required: true,
     ref: "route-stage",
   },
-});
+},{timestamps:true});
 module.exports = mongoose.model("machine", machineSchema);
