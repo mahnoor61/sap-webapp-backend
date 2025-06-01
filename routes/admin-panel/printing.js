@@ -10,7 +10,7 @@ const {
   getQcCurrentTableData,
   getAllPrintingMachines,
   getJobData,
-} = require("../../controller/admin-panel/qc");
+} = require("../../controller/admin-panel/printing");
 
 //machine route
 router.get(

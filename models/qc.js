@@ -10,7 +10,7 @@ const qcSchema = new mongoose.Schema({
   jobId: { type: mongoose.Schema.Types.ObjectId, ref: "job-assigning" },
   formType: {
     type: String,
-    enum: ["printing", "coating", "polling", "doubling", "sheeting", "filming"],
+    enum: ["printing",'die-cutting', "laminating", "pasting", "report-food"],
     default: null,
   },
   formId: {

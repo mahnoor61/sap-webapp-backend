@@ -13,15 +13,15 @@ exports.getAllAssignJobOfMachine = async (req, res) => {
     const { machineId } = req.params;
 
     const all = await Job.find({ machine: machineId }).populate(
-      "productionOrderDataId"
+        "productionOrderDataId"
     );
 
     if (all.length > 0) {
       return success_response(
-        res,
-        200,
-        "All jobs of given machine fetch successfully",
-        all
+          res,
+          200,
+          "All jobs of given machine fetch successfully",
+          all
       );
     }
 
@@ -69,9 +69,9 @@ exports.saveQuantityOrTimeForQC = async (req, res) => {
 
     if (job.status === "make-ready-time") {
       return error_response(
-        res,
-        400,
-        "You cannot enter the quantity because the job is currently in the make-ready time.!"
+          res,
+          400,
+          "You cannot enter the quantity because the job is currently in the make-ready time.!"
       );
     }
 
@@ -82,21 +82,21 @@ exports.saveQuantityOrTimeForQC = async (req, res) => {
 
       if (quantity > totalCompQty) {
         return error_response(
-          res,
-          400,
-          "Entered quantity cannot exceed total completed quantity."
+            res,
+            400,
+            "Entered quantity cannot exceed total completed quantity."
         );
       }
 
       if (
-        lastQC &&
-        lastQC.quantity !== undefined &&
-        quantity <= lastQC.quantity
+          lastQC &&
+          lastQC.quantity !== undefined &&
+          quantity <= lastQC.quantity
       ) {
         return error_response(
-          res,
-          400,
-          `You must enter a quantity greater than the previous entry (${lastQC.quantity}).`
+            res,
+            400,
+            `You must enter a quantity greater than the previous entry (${lastQC.quantity}).`
         );
       }
 
@@ -146,24 +146,24 @@ exports.createPrinting = async (req, res) => {
 
     // console.log("id", id);
     if (
-      !(
-        // serialNo &&
-        (
-          qcNo &&
-          shift &&
-          date &&
-          registration &&
-          scumming &&
-          setOff &&
-          dust &&
-          doubling &&
-          colorVariation &&
-          text &&
-          dmsFromPlate &&
-          frontLay &&
-          sideLay
+        !(
+            // serialNo &&
+            (
+                qcNo &&
+                shift &&
+                date &&
+                registration &&
+                scumming &&
+                setOff &&
+                dust &&
+                doubling &&
+                colorVariation &&
+                text &&
+                dmsFromPlate &&
+                frontLay &&
+                sideLay
+            )
         )
-      )
     ) {
       return error_response(res, 400, "All inputs are required!");
     }
@@ -211,9 +211,9 @@ exports.getData = async (req, res) => {
     }
 
     const qc = await QC.findOne({ _id: id })
-      .populate("jobId")
-      .populate("userId")
-      .lean();
+        .populate("jobId")
+        .populate("userId")
+        .lean();
 
     const machine = qc.jobId.machine;
     const productionDataId = qc.jobId.productionOrderDataId;
@@ -242,9 +242,9 @@ exports.getQcCurrentTableData = async (req, res) => {
 
     // Get QC records with job, user, and form populated
     const qcList = await QC.find({ jobId })
-      .populate("jobId")
-      .populate("formId")
-      .lean();
+        .populate("jobId")
+        .populate("formId")
+        .lean();
 
     if (!qcList) {
       return error_response(res, 400, "QC data not found!");
@@ -252,28 +252,28 @@ exports.getQcCurrentTableData = async (req, res) => {
 
     // Get Production Order and Machine Data for each record
     const enhancedQcList = await Promise.all(
-      qcList.map(async (qc) => {
-        const prodId = qc.jobId?.productionOrderDataId;
-        const machineId = qc.jobId?.machine;
+        qcList.map(async (qc) => {
+          const prodId = qc.jobId?.productionOrderDataId;
+          const machineId = qc.jobId?.machine;
 
-        const [productionData, machineData] = await Promise.all([
-          prodId ? Production.findById(prodId).lean() : null,
-          machineId ? Machine.findById(machineId).lean() : null,
-        ]);
+          const [productionData, machineData] = await Promise.all([
+            prodId ? Production.findById(prodId).lean() : null,
+            machineId ? Machine.findById(machineId).lean() : null,
+          ]);
 
-        return {
-          ...qc,
-          productionOrderData: productionData || null,
-          machineData: machineData || null,
-        };
-      })
+          return {
+            ...qc,
+            productionOrderData: productionData || null,
+            machineData: machineData || null,
+          };
+        })
     );
 
     return success_response(
-      res,
-      200,
-      "All data for qc current table  fetched successfully",
-      enhancedQcList
+        res,
+        200,
+        "All data for qc current table  fetched successfully",
+        enhancedQcList
     );
   } catch (error) {
     console.error(error);
@@ -283,7 +283,7 @@ exports.getQcCurrentTableData = async (req, res) => {
 
 exports.getAllPrintingMachines = async (req, res) => {
   try {
-    const route = await Route.findOne({ code: "04 Printing" });
+    const route = await Route.findOne({ code: "4 Printing" });
     if (!route) {
       return error_response(res, 400, "Printing route not found in db!");
     }
@@ -291,10 +291,10 @@ exports.getAllPrintingMachines = async (req, res) => {
     const getAllMachines = await Machine.find({ route: route._id });
 
     return success_response(
-      res,
-      200,
-      "All printing machines fetch successfully",
-      getAllMachines
+        res,
+        200,
+        "All printing machines fetch successfully",
+        getAllMachines
     );
   } catch (error) {
     console.log("error");
@@ -310,9 +310,9 @@ exports.getJobData = async (req, res) => {
     }
 
     let job = await QC.findOne({ jobId })
-      .populate("jobId")
-      .populate("userId")
-      .lean();
+        .populate("jobId")
+        .populate("userId")
+        .lean();
 
     let jobData = null;
     let machine = null;
@@ -332,9 +332,9 @@ exports.getJobData = async (req, res) => {
     } else {
       // QC record not found — use Job directly
       const fallbackJob = await Job.findOne({ _id: jobId })
-        .populate("user")
-        .populate("productionOrderDataId")
-        .lean();
+          .populate("user")
+          .populate("productionOrderDataId")
+          .lean();
 
       if (!fallbackJob) {
         return error_response(res, 404, "Job not found in QC or Job table!");
