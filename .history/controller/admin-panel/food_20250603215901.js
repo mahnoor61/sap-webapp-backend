@@ -56,7 +56,7 @@ exports.saveQuantityOrTimeForQC = async (req, res) => {
     const totalCompQty = job?.totalCompletedQuantity;
 
     if (quantity !== undefined) {
-      const lastQC = await Food.findOne({ jobId }).sort({ createdAt: -1 });
+      const lastQC = await QC.findOne({ jobId }).sort({ createdAt: -1 });
 
       if (quantity > totalCompQty) {
         return error_response(

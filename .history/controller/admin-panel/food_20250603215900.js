@@ -56,26 +56,26 @@ exports.saveQuantityOrTimeForQC = async (req, res) => {
     const totalCompQty = job?.totalCompletedQuantity;
 
     if (quantity !== undefined) {
-      const lastQC = await Food.findOne({ jobId }).sort({ createdAt: -1 });
-
+      const lastQC = await QC.findOne({jobId}).sort({createdAt: -1});
+      
       if (quantity > totalCompQty) {
-        return error_response(
-          res,
-          400,
-          "Entered quantity cannot exceed total completed quantity."
-        );
+          return error_response(
+              res,
+              400,
+              "Entered quantity cannot exceed total completed quantity."
+          );
       }
-
+      
       if (
-        lastQC &&
-        lastQC.quantity !== undefined &&
-        quantity <= lastQC.quantity
+          lastQC &&
+          lastQC.quantity !== undefined &&
+          quantity <= lastQC.quantity
       ) {
-        return error_response(
-          res,
-          400,
-          `You must enter a quantity greater than the previous entry (${lastQC.quantity}).`
-        );
+          return error_response(
+              res,
+              400,
+              `You must enter a quantity greater than the previous entry (${lastQC.quantity}).`
+          );
       }
 
       qcData.quantity = quantity;

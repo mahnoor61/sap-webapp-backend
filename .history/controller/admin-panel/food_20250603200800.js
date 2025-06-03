@@ -1,6 +1,6 @@
 const Job = require("../../models/jobAssigning");
 const QC = require("../../models/qc");
-const Laminating = require("../../models/laminating");
+const Food = require("../../models/food");
 const Machine = require("../../models/machine");
 const Production = require("../../models/productionOrder");
 const Route = require("../../models/routeStage");
@@ -24,6 +24,7 @@ exports.getAllAssignJobOfMachine = async (req, res) => {
                 all
             );
         }
+
         return success_response(res, 200, "Jobs of given machine not found!", []);
     } catch (error) {
         console.error(error);
@@ -55,27 +56,27 @@ exports.saveQuantityOrTimeForQC = async (req, res) => {
         const totalCompQty = job?.totalCompletedQuantity;
 
         if (quantity !== undefined) {
-            const lastQC = await QC.findOne({jobId}).sort({createdAt: -1});
-
-            if (quantity > totalCompQty) {
-                return error_response(
-                    res,
-                    400,
-                    "Entered quantity cannot exceed total completed quantity."
-                );
-            }
-
-            if (
-                lastQC &&
-                lastQC.quantity !== undefined &&
-                quantity <= lastQC.quantity
-            ) {
-                return error_response(
-                    res,
-                    400,
-                    `You must enter a quantity greater than the previous entry (${lastQC.quantity}).`
-                );
-            }
+            // const lastQC = await QC.findOne({jobId}).sort({createdAt: -1});
+            //
+            // if (quantity > totalCompQty) {
+            //     return error_response(
+            //         res,
+            //         400,
+            //         "Entered quantity cannot exceed total completed quantity."
+            //     );
+            // }
+            //
+            // if (
+            //     lastQC &&
+            //     lastQC.quantity !== undefined &&
+            //     quantity <= lastQC.quantity
+            // ) {
+            //     return error_response(
+            //         res,
+            //         400,
+            //         `You must enter a quantity greater than the previous entry (${lastQC.quantity}).`
+            //     );
+            // }
 
             qcData.quantity = quantity;
             qcData.time = quantityTime;
@@ -95,7 +96,7 @@ exports.saveQuantityOrTimeForQC = async (req, res) => {
     }
 };
 
-exports.createLaminating = async (req, res) => {
+exports.createReportForFood = async (req, res) => {
     try {
         const {
             //   id,
@@ -103,17 +104,17 @@ exports.createLaminating = async (req, res) => {
             shift,
             qcNo,
             serialNo,
-            filmSize,
-            gloss,
-            glueLayer,
-            wrinkle,
+
+            printingSpots,
+            ccWrongCutting,
+            embossOut,
+            laminationWrinkle,
             bubble,
-            reelSideLay,
-            reelFrontLay,
-            micron,
-            extraLayer,
-            pileFormation,
-            countingInPkts
+            files,
+            colorVariation,
+            foiling,
+            okQty,
+            totalWaste
         } = req.body;
         const {id} = req.params;
         if (
@@ -123,52 +124,49 @@ exports.createLaminating = async (req, res) => {
                     qcNo &&
                     shift &&
                     date &&
-                    filmSize &&
-                    gloss &&
-                    glueLayer &&
-                    wrinkle &&
+                    printingSpots &&
+                    ccWrongCutting &&
+                    embossOut &&
+                    laminationWrinkle &&
                     bubble &&
-                    reelSideLay &&
-                    reelFrontLay &&
-                    micron &&
-                    extraLayer &&
-                    pileFormation &&
-                    countingInPkts
+                    files &&
+                    colorVariation &&
+                    foiling &&
+                    okQty &&
+                    totalWaste
                 )
             )
         ) {
             return error_response(res, 400, "All inputs are required!");
         }
 
-        const die = await Laminating.create({
+        const die = await Food.create({
             qcNo,
             date,
             shift,
             serialNo,
-            filmSize,
-            gloss,
-            glueLayer,
-            wrinkle,
+            printingSpots,
+            ccWrongCutting,
+            embossOut,
+            laminationWrinkle,
             bubble,
-            reelSideLay,
-            reelFrontLay,
-            micron,
-            extraLayer,
-            pileFormation,
-            countingInPkts
+            files,
+            colorVariation,
+            foiling,
+            okQty,
+            totalWaste
         });
 
-        const qc = await QC.findOne({_id: id});
+        // const qc = await QC.findOne({_id: id});
 
-        if (!qc) {
-            return error_response(res, 400, "Job of this user not found!");
-        }
-        qc.formType = "laminating";
-        qc.formId = die._id;
-        await qc.save();
-        return success_response(res, 200, "Laminating save successfully", {
-            die,
-            qc,
+        // if (!qc) {
+        //     return error_response(res, 400, "Job of this user not found!");
+        // }
+        // qc.formType = "report-food";
+        // qc.formId = die._id;
+        // await qc.save();
+        return success_response(res, 200, "Food save successfully", {
+            die
         });
     } catch (error) {
         console.error(error);
@@ -255,21 +253,14 @@ exports.getQcCurrentTableData = async (req, res) => {
     }
 };
 
-exports.getAllDieMachines = async (req, res) => {
+exports.getAllFoodMachines = async (req, res) => {
     try {
-        const route = await Route.findOne({code: "5 Laminating"});
-
-        if (!route) {
-            return error_response(res, 400, "Die cutting route not found in db!");
-        }
-
-        const getAllMachines = await Machine.find({route: route._id});
-
+        const getAllMachines = await Machine.find();
 
         return success_response(
             res,
             200,
-            "All Laminating  machines fetch successfully",
+            "Food  machines fetch successfully",
             getAllMachines
         );
     } catch (error) {

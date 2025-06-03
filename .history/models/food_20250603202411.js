@@ -14,8 +14,9 @@ const foodSchema = new mongoose.Schema({
 
   qcNo: { type: String },
   shift: { type: String },
-    date: { type: String },
-  
+  date: { type: String },
+
+
   printingSpots: responseObjectSchema,
   ccWrongCutting: responseObjectSchema,
   embossOut: responseObjectSchema,

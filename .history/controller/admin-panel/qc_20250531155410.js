@@ -1,6 +1,6 @@
 const Job = require("../../models/jobAssigning");
 const QC = require("../../models/qc");
-const Food = require("../../models/food");
+const Printing = require("../../models/printing");
 const Machine = require("../../models/machine");
 const Production = require("../../models/productionOrder");
 const Route = require("../../models/routeStage");
@@ -31,6 +31,28 @@ exports.getAllAssignJobOfMachine = async (req, res) => {
     return error_response(res, 500, error.message);
   }
 };
+// exports.saveQuantityOrTimeForQC = async (req, res) => {
+//   try {
+//     const { quantity, makeTime, userId, jobId, time } = req.body;
+
+//     if (!(jobId && userId)) {
+//       return error_response(res, 400, "All inputs are required!");
+//     }
+
+//     const create = await QC.create({
+//       makeTime,
+//       quantity,
+//       userId,
+//       jobId,
+//     });
+
+//     return success_response(res, 200, "Quantity save successfully", create);
+//   } catch (error) {
+//     console.error(error);
+//     return error_response(res, 500, error.message);
+//   }
+// };
+
 exports.saveQuantityOrTimeForQC = async (req, res) => {
   try {
     const { quantity, makeTime, quantityTime, jobId } = req.body;
@@ -56,7 +78,7 @@ exports.saveQuantityOrTimeForQC = async (req, res) => {
     const totalCompQty = job?.totalCompletedQuantity;
 
     if (quantity !== undefined) {
-      const lastQC = await Food.findOne({ jobId }).sort({ createdAt: -1 });
+      const lastQC = await QC.findOne({ jobId }).sort({ createdAt: -1 });
 
       if (quantity > totalCompQty) {
         return error_response(
@@ -82,12 +104,17 @@ exports.saveQuantityOrTimeForQC = async (req, res) => {
       qcData.time = quantityTime;
     }
 
+    // if (quantity !== undefined) {
+    //   qcData.quantity = quantity;
+    //   qcData.time = quantityTime;
+    // }
+
     if (makeTime !== undefined) {
       qcData.time = makeTime;
       qcData.makeTimeStatus = "make ready time";
     }
 
-    const create = await Food.create(qcData);
+    const create = await QC.create(qcData);
 
     return success_response(res, 200, "QC data saved successfully", create);
   } catch (error) {
@@ -96,154 +123,85 @@ exports.saveQuantityOrTimeForQC = async (req, res) => {
   }
 };
 
-exports.createReportForFood = async (req, res) => {
+exports.createPrinting = async (req, res) => {
   try {
     const {
+      //   id,
       date,
       shift,
       qcNo,
       serialNo,
-      printingSpots,
-      ccWrongCutting,
-      embossOut,
-      laminationWrinkle,
-      bubble,
-      files,
+      dmsFromPlate,
+      text,
+      dust,
+      sideLay,
+      frontLay,
+      registration,
+      scumming,
+      setOff,
+      doubling,
       colorVariation,
-      foiling,
-      okQty,
-      totalWaste,
     } = req.body;
-
     const { id } = req.params;
 
+    // console.log("id", id);
     if (
       !(
-        qcNo &&
-        shift &&
-        date &&
-        printingSpots &&
-        ccWrongCutting &&
-        embossOut &&
-        laminationWrinkle &&
-        bubble &&
-        files &&
-        colorVariation &&
-        foiling &&
-        okQty &&
-        totalWaste
+        // serialNo &&
+        (
+          qcNo &&
+          shift &&
+          date &&
+          registration &&
+          scumming &&
+          setOff &&
+          dust &&
+          doubling &&
+          colorVariation &&
+          text &&
+          dmsFromPlate &&
+          frontLay &&
+          sideLay
+        )
       )
     ) {
       return error_response(res, 400, "All inputs are required!");
     }
 
-    const updatedDie = await Food.findByIdAndUpdate(
-      id,
-      {
-        qcNo,
-        date,
-        shift,
-        serialNo,
-        printingSpots,
-        ccWrongCutting,
-        embossOut,
-        laminationWrinkle,
-        bubble,
-        files,
-        colorVariation,
-        foiling,
-        okQty,
-        totalWaste,
-      },
-      { new: true } // returns updated document
-    );
+    const printing = await Printing.create({
+      qcNo,
+      date,
+      shift,
+      serialNo,
+      registration,
+      scumming,
+      setOff,
+      dust,
+      doubling,
+      colorVariation,
+      text,
+      dmsFromPlate,
+      frontLay,
+      sideLay,
+    });
 
-    if (!updatedDie) {
-      return error_response(res, 404, "No record found with this ID");
+    const qc = await QC.findOne({ _id: id });
+
+    if (!qc) {
+      return error_response(res, 400, "Job of this user not found!");
     }
-
-    return success_response(res, 200, "Food report updated successfully", {
-      die: updatedDie,
+    qc.formType = "printing";
+    qc.formId = printing._id;
+    await qc.save();
+    return success_response(res, 200, "Printing save successfully", {
+      printing,
+      qc,
     });
   } catch (error) {
     console.error(error);
     return error_response(res, 500, error.message);
   }
 };
-
-// exports.createReportForFood = async (req, res) => {
-//   try {
-//     const {
-//       //   id,
-//       date,
-//       shift,
-//       qcNo,
-//       serialNo,
-
-//       printingSpots,
-//       ccWrongCutting,
-//       embossOut,
-//       laminationWrinkle,
-//       bubble,
-//       files,
-//       colorVariation,
-//       foiling,
-//       okQty,
-//       totalWaste,
-//     } = req.body;
-//     const { id } = req.params;
-//     if (
-//       !(
-//         // serialNo &&
-//         (
-//           qcNo &&
-//           shift &&
-//           date &&
-//           printingSpots &&
-//           ccWrongCutting &&
-//           embossOut &&
-//           laminationWrinkle &&
-//           bubble &&
-//           files &&
-//           colorVariation &&
-//           foiling &&
-//           okQty &&
-//           totalWaste
-//         )
-//       )
-//     ) {
-//       return error_response(res, 400, "All inputs are required!");
-//     }
-
-//     let die = await Food.findOne({ _id: id });
-
-//     if (die) {
-//       die = await Food.create({
-//         qcNo,
-//         date,
-//         shift,
-//         serialNo,
-//         printingSpots,
-//         ccWrongCutting,
-//         embossOut,
-//         laminationWrinkle,
-//         bubble,
-//         files,
-//         colorVariation,
-//         foiling,
-//         okQty,
-//         totalWaste,
-//       });
-//     }
-
-//     return success_response(res, 200, "Food save successfully", {
-//       die,
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     return error_response(res, 500, error.message);
-//   }
-// };
 exports.getData = async (req, res) => {
   try {
     const { id } = req.params;
@@ -252,7 +210,7 @@ exports.getData = async (req, res) => {
       return error_response(res, 400, "All inputs are required!");
     }
 
-    const qc = await Food.findOne({ _id: id })
+    const qc = await QC.findOne({ _id: id })
       .populate("jobId")
       .populate("userId")
       .lean();
@@ -283,7 +241,10 @@ exports.getQcCurrentTableData = async (req, res) => {
     }
 
     // Get QC records with job, user, and form populated
-    const qcList = await Food.find({ jobId }).populate("jobId").lean();
+    const qcList = await QC.find({ jobId })
+      .populate("jobId")
+      .populate("formId")
+      .lean();
 
     if (!qcList) {
       return error_response(res, 400, "QC data not found!");
@@ -320,18 +281,23 @@ exports.getQcCurrentTableData = async (req, res) => {
   }
 };
 
-exports.getAllFoodMachines = async (req, res) => {
+exports.getAllPrintingMachines = async (req, res) => {
   try {
-    const getAllMachines = await Machine.find();
+    const route = await Route.findOne({ code: "04 Printing" });
+    if (!route) {
+      return error_response(res, 400, "Printing route not found in db!");
+    }
+
+    const getAllMachines = await Machine.find({ route: route._id });
 
     return success_response(
       res,
       200,
-      "Food  machines fetch successfully",
+      "All printing machines fetch successfully",
       getAllMachines
     );
   } catch (error) {
-    console.log("error", error);
+    console.log("error");
     return error_response(res, 500, error.message);
   }
 };
@@ -343,7 +309,7 @@ exports.getJobData = async (req, res) => {
       return error_response(res, 400, "Job ID is required!");
     }
 
-    let job = await Food.findOne({ jobId })
+    let job = await QC.findOne({ jobId })
       .populate("jobId")
       .populate("userId")
       .lean();
@@ -398,3 +364,55 @@ exports.getJobData = async (req, res) => {
     return error_response(res, 500, error.message);
   }
 };
+
+// exports.getJobData = async (req, res) => {
+//   try {
+//     const { jobId } = req.body;
+
+//     if (!jobId) {
+//       return error_response(res, 400, "Job ID is required!");
+//     }
+
+//     // Get single QC record and populate jobId field
+//     let job = await QC.findOne({ jobId })
+//       .populate("jobId")
+//       .populate("userId")
+//       .lean();
+
+//     if (!job) {
+//       job = await Job.findOne({ _id: jobId })
+//         .populate("user")
+//         .populate("productionOrderDataId")
+//         .lean();
+//       // return error_response(res, 404, "Job data not found!");
+//     }
+
+//     console.log("job", job);
+
+//     const prodId = job.jobId?.productionOrderDataId;
+//     const machineId = job.jobId?.machine;
+//     const userId = job.jobId?.user;
+
+//     // Fetch ProductionOrderData if prodId exists
+//     let jobData = null;
+//     let machine = null;
+//     let userData = null;
+
+//     if (prodId) {
+//       jobData = await Production.findById(prodId).lean();
+//       machine = await Machine.findById(machineId).lean();
+//       userData = await Users.findById(userId).lean();
+//     }
+
+//     // Include productionOrderData in the response
+//     return success_response(res, 200, "Job data fetched successfully", {
+//       ...job,
+//       jobData,
+//       machine,
+//       userData,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     return error_response(res, 500, error.message);
+//   }
+// };

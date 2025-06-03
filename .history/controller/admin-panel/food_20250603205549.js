@@ -56,27 +56,27 @@ exports.saveQuantityOrTimeForQC = async (req, res) => {
     const totalCompQty = job?.totalCompletedQuantity;
 
     if (quantity !== undefined) {
-      const lastQC = await Food.findOne({ jobId }).sort({ createdAt: -1 });
-
-      if (quantity > totalCompQty) {
-        return error_response(
-          res,
-          400,
-          "Entered quantity cannot exceed total completed quantity."
-        );
-      }
-
-      if (
-        lastQC &&
-        lastQC.quantity !== undefined &&
-        quantity <= lastQC.quantity
-      ) {
-        return error_response(
-          res,
-          400,
-          `You must enter a quantity greater than the previous entry (${lastQC.quantity}).`
-        );
-      }
+      // const lastQC = await QC.findOne({jobId}).sort({createdAt: -1});
+      //
+      // if (quantity > totalCompQty) {
+      //     return error_response(
+      //         res,
+      //         400,
+      //         "Entered quantity cannot exceed total completed quantity."
+      //     );
+      // }
+      //
+      // if (
+      //     lastQC &&
+      //     lastQC.quantity !== undefined &&
+      //     quantity <= lastQC.quantity
+      // ) {
+      //     return error_response(
+      //         res,
+      //         400,
+      //         `You must enter a quantity greater than the previous entry (${lastQC.quantity}).`
+      //     );
+      // }
 
       qcData.quantity = quantity;
       qcData.time = quantityTime;
@@ -99,10 +99,12 @@ exports.saveQuantityOrTimeForQC = async (req, res) => {
 exports.createReportForFood = async (req, res) => {
   try {
     const {
+      //   id,
       date,
       shift,
       qcNo,
       serialNo,
+
       printingSpots,
       ccWrongCutting,
       embossOut,
@@ -114,136 +116,68 @@ exports.createReportForFood = async (req, res) => {
       okQty,
       totalWaste,
     } = req.body;
-
     const { id } = req.params;
-
     if (
       !(
-        qcNo &&
-        shift &&
-        date &&
-        printingSpots &&
-        ccWrongCutting &&
-        embossOut &&
-        laminationWrinkle &&
-        bubble &&
-        files &&
-        colorVariation &&
-        foiling &&
-        okQty &&
-        totalWaste
+        // serialNo &&
+        (
+          qcNo &&
+          shift &&
+          date &&
+          printingSpots &&
+          ccWrongCutting &&
+          embossOut &&
+          laminationWrinkle &&
+          bubble &&
+          files &&
+          colorVariation &&
+          foiling &&
+          okQty &&
+          totalWaste
+        )
       )
     ) {
       return error_response(res, 400, "All inputs are required!");
     }
 
-    const updatedDie = await Food.findByIdAndUpdate(
-      id,
-      {
-        qcNo,
-        date,
-        shift,
-        serialNo,
-        printingSpots,
-        ccWrongCutting,
-        embossOut,
-        laminationWrinkle,
-        bubble,
-        files,
-        colorVariation,
-        foiling,
-        okQty,
-        totalWaste,
-      },
-      { new: true } // returns updated document
-    );
+    let die = await Food.findOne({ _id: id });
 
-    if (!updatedDie) {
-      return error_response(res, 404, "No record found with this ID");
-    }
+      
+      
+      
+    die = await Food.create({
+      qcNo,
+      date,
+      shift,
+      serialNo,
+      printingSpots,
+      ccWrongCutting,
+      embossOut,
+      laminationWrinkle,
+      bubble,
+      files,
+      colorVariation,
+      foiling,
+      okQty,
+      totalWaste,
+    });
 
-    return success_response(res, 200, "Food report updated successfully", {
-      die: updatedDie,
+    // const qc = await QC.findOne({_id: id});
+
+    // if (!qc) {
+    //     return error_response(res, 400, "Job of this user not found!");
+    // }
+    // qc.formType = "report-food";
+    // qc.formId = die._id;
+    // await qc.save();
+    return success_response(res, 200, "Food save successfully", {
+      die,
     });
   } catch (error) {
     console.error(error);
     return error_response(res, 500, error.message);
   }
 };
-
-// exports.createReportForFood = async (req, res) => {
-//   try {
-//     const {
-//       //   id,
-//       date,
-//       shift,
-//       qcNo,
-//       serialNo,
-
-//       printingSpots,
-//       ccWrongCutting,
-//       embossOut,
-//       laminationWrinkle,
-//       bubble,
-//       files,
-//       colorVariation,
-//       foiling,
-//       okQty,
-//       totalWaste,
-//     } = req.body;
-//     const { id } = req.params;
-//     if (
-//       !(
-//         // serialNo &&
-//         (
-//           qcNo &&
-//           shift &&
-//           date &&
-//           printingSpots &&
-//           ccWrongCutting &&
-//           embossOut &&
-//           laminationWrinkle &&
-//           bubble &&
-//           files &&
-//           colorVariation &&
-//           foiling &&
-//           okQty &&
-//           totalWaste
-//         )
-//       )
-//     ) {
-//       return error_response(res, 400, "All inputs are required!");
-//     }
-
-//     let die = await Food.findOne({ _id: id });
-
-//     if (die) {
-//       die = await Food.create({
-//         qcNo,
-//         date,
-//         shift,
-//         serialNo,
-//         printingSpots,
-//         ccWrongCutting,
-//         embossOut,
-//         laminationWrinkle,
-//         bubble,
-//         files,
-//         colorVariation,
-//         foiling,
-//         okQty,
-//         totalWaste,
-//       });
-//     }
-
-//     return success_response(res, 200, "Food save successfully", {
-//       die,
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     return error_response(res, 500, error.message);
-//   }
-// };
 exports.getData = async (req, res) => {
   try {
     const { id } = req.params;
@@ -283,7 +217,10 @@ exports.getQcCurrentTableData = async (req, res) => {
     }
 
     // Get QC records with job, user, and form populated
-    const qcList = await Food.find({ jobId }).populate("jobId").lean();
+    const qcList = await Food.find({ jobId })
+      .populate("jobId")
+      .populate("formId")
+      .lean();
 
     if (!qcList) {
       return error_response(res, 400, "QC data not found!");
